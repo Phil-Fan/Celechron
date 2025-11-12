@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'custom_license_page.dart';
 import 'login_page.dart';
 import 'option_controller.dart';
+import 'watch_debug_page.dart';
 
 const Color _kHeaderFooterColor = CupertinoDynamicColor(
   color: Color.fromRGBO(108, 108, 108, 1.0),
@@ -366,6 +367,18 @@ class OptionPage extends StatelessWidget {
                           .pushNamed('/ecardpaypage');
                     },
                   ),
+                  if (PlatformFeatures.hasWidgetSupport)
+                    CupertinoListTile(
+                      title: const Text('Watch 通信调试'),
+                      trailing: const BackChervonRow(),
+                      onTap: () async {
+                        Navigator.of(context, rootNavigator: true).push(
+                          CupertinoPageRoute(
+                            builder: (context) => const WatchDebugPage(),
+                          ),
+                        );
+                      },
+                    ),
                 ])),
             // 关于
             SliverToBoxAdapter(

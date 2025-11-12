@@ -8,24 +8,30 @@
 import SwiftUI
 
 struct ScheduleListView: View {
-    @State private var flows: [PeriodDto] = []
+    @StateObject private var provider = ScheduleProvider()
     
     var body: some View {
         ScrollView {
-            if flows.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "calendar")
+            if provider.flows.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: provider.hasData ? "calendar" : "arrow.triangle.2.circlepath")
                         .font(.title2)
                         .foregroundColor(.secondary)
-                    Text("暂无日程")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    Text(provider.hasData ? "暂无日程" : "数据未同步")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+                    if !provider.hasData {
+                        Text("请先运行主应用\n以同步日程数据")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                    }
                 }
                 .padding()
             } else {
                 VStack(spacing: 8) {
-                    ForEach(flows.indices, id: \.self) { index in
-                        FlowCardView(flow: flows[index])
+                    ForEach(provider.flows.indices, id: \.self) { index in
+                        FlowCardView(flow: provider.flows[index])
                     }
                 }
                 .padding(.horizontal)
@@ -34,25 +40,10 @@ struct ScheduleListView: View {
         .navigationTitle("日程")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            loadFlows()
+            provider.loadFlows(limit: 10)
         }
         .refreshable {
-            loadFlows()
-        }
-    }
-    
-    private func loadFlows() {
-        print("🔄 [ScheduleListView] 开始加载日程")
-        let loadedFlows = DataHelper.getUpcomingFlows(limit: 10)
-        flows = loadedFlows
-        print("✅ [ScheduleListView] 日程加载完成，共 \(loadedFlows.count) 条")
-        
-        if loadedFlows.isEmpty {
-            print("⚠️ [ScheduleListView] 没有找到即将到来的日程")
-        } else {
-            for (index, flow) in loadedFlows.enumerated() {
-                print("📅 [ScheduleListView] 日程 \(index + 1): \(flow.name ?? "未命名") - \(Date(timeIntervalSince1970: TimeInterval(flow.startTime)))")
-            }
+            provider.loadFlows(limit: 10)
         }
     }
 }

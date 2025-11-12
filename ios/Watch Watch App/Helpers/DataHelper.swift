@@ -59,6 +59,18 @@ class DataHelper {
         os_log("✅ [DataHelper] 成功解析日程数据，总数: %d，有效: %d", log: logger, type: .info, flowList.count, validFlows.count)
         print("✅ [DataHelper] 成功解析日程数据，总数: \(flowList.count)，有效: \(validFlows.count)")
         
+        // 打印所有日程详情用于调试
+        if !validFlows.isEmpty {
+            print("📋 [DataHelper] 所有日程详情:")
+            for (index, flow) in validFlows.enumerated() {
+                let startDate = Date(timeIntervalSince1970: TimeInterval(flow.startTime))
+                let endDate = Date(timeIntervalSince1970: TimeInterval(flow.endTime))
+                let formatter = DateFormatter()
+                formatter.dateFormat = "MM-dd HH:mm"
+                print("  [\(index + 1)] \(flow.name ?? "未命名") | \(formatter.string(from: startDate)) - \(formatter.string(from: endDate)) | \(flow.location ?? "无地点") | 类型: \(flow.type.rawValue)")
+            }
+        }
+        
         return validFlows
     }
     
@@ -81,6 +93,21 @@ class DataHelper {
         
         os_log("✅ [DataHelper] 筛选后即将到来的日程数量: %d", log: logger, type: .info, sortedFlows.count)
         print("✅ [DataHelper] 筛选后即将到来的日程数量: \(sortedFlows.count)")
+        
+        // 打印即将到来的日程详情
+        if !sortedFlows.isEmpty {
+            print("📅 [DataHelper] 即将到来的日程详情:")
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MM-dd HH:mm"
+            for (index, flow) in sortedFlows.enumerated() {
+                let startDate = Date(timeIntervalSince1970: TimeInterval(flow.startTime))
+                let endDate = Date(timeIntervalSince1970: TimeInterval(flow.endTime))
+                let timeToStart = TimeInterval(flow.startTime) - currentTime
+                let hoursToStart = Int(timeToStart / 3600)
+                let minutesToStart = Int((timeToStart.truncatingRemainder(dividingBy: 3600)) / 60)
+                print("  [\(index + 1)] \(flow.name ?? "未命名") | \(formatter.string(from: startDate)) - \(formatter.string(from: endDate)) | \(hoursToStart)小时\(minutesToStart)分钟后开始")
+            }
+        }
         
         return sortedFlows
     }
